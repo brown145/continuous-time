@@ -57,6 +57,22 @@
              }
     }
 
+    function setLong() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(useGeoLoc, useDefault);
+      } else {
+        useDefault();
+      }
+
+      function useGeoLoc(gl) {
+        elem("input").value = gl.coords.longitude;
+      }
+
+      function useDefault(e) {
+        elem("input").value = -117;
+      }
+    }
+
     function show() {
       var l, z, t;
 
@@ -82,7 +98,7 @@
       MODE = m;
       if(m == "LONG") {
         elem('prompt').innerHTML = '&deg;';
-        elem('input').value = -117;
+        setLong();
       } else if(m == "ZIP") {
         elem('prompt').innerHTML = '';
         elem('input').value = 92093;
