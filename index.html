@@ -48,6 +48,24 @@
              , sec:  ctm.getUTCSeconds()
              }
     }
+    
+    function setDefaultLONG() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(successFunction, errorFunction);
+        }
+
+        function successFunction(position) {
+        	console.log(position.coords.longitude);
+            elem("input").value = position.coords.longitude;
+            show();
+        }
+
+        function errorFunction(e) {
+        	//console.log(e);
+        	//DO nothing
+        }
+    }
+    setDefaultLONG();
 
     MODE = "LONG";
 
@@ -85,7 +103,7 @@
         MODE = "LONG";
         elem('prompt').innerHTML = '&deg;';
         elem('mode-switch').innerHTML = 'ZIP';
-        elem('input').value = -117;
+        elem('input').value = -130;
       } else {
         error('BAD MODE');
       }
