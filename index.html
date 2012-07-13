@@ -18,9 +18,11 @@
       font-weight: bold;
       text-align: right;
     }
-    #mode-switch {
+    .mode-switch {
       font-size: 16pt;
-      padding: 8px;
+      padding: 5px;
+      margin: 10px;
+      width: 150px;
     }
   </style>
 </head>
@@ -31,15 +33,21 @@
     is <span id='clock'></span>
   </h1>
   <br />
-  <button type='button' id='mode-switch' onclick='mode_switch()'></button>
+  <button type='button' class='mode-switch'
+    onclick='switch_mode("LONG")'>Longitude</button>
+  <button type='button' class='mode-switch'
+    onclick='switch_mode("ZIP")'>ZIP</button>
   <script>
+    "use strict";
+
+    var MODE;
+    var hour_ms = 1000 * 60 * 60; // millis in an hour
+
     function elem(id) {
       return document.getElementById(id);
     }
 
-    hour_ms = 1000 * 60 * 60; // millis in an hour
-
-    function conTime(longitude) {
+    function con_time(longitude) {
       var utc = new Date().getTime();
       var off = 12 * hour_ms * longitude / 180;
       var ctm = new Date(utc + off);
@@ -48,25 +56,22 @@
              , sec:  ctm.getUTCSeconds()
              }
     }
-    
-    function setDefaultLONG() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(successFunction, errorFunction);
-        }
 
-        function successFunction(position) {
-            elem("input").value = position.coords.longitude;
-            show();
-        }
+    function setLong() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(useGeoLoc, useDefault);
+      } else {
+        useDefault();
+      }
 
-        function errorFunction(e) {
-        	//console.log(e);
-        	//DO nothing
-        }
+      function useGeoLoc(gl) {
+        elem("input").value = gl.coords.longitude;
+      }
+
+      function useDefault(e) {
+        elem("input").value = -117;
+      }
     }
-    setDefaultLONG();
-
-    MODE = "LONG";
 
     function show() {
       var l, z, t;
@@ -80,29 +85,24 @@
         error('BAD MODE');
       }
 
-      t = conTime(l);
-      if(t.hour) { // probably a valid time
+      if(isNaN(l)) {
+        // bogus longitude
+        elem('clock').innerHTML = '??:??:??';
+      } else {
+        t = con_time(l);
         elem('clock').innerHTML =
           sprintf('%02d:%02d:%02d', t.hour, t.min, t.sec);
-      } else { // error or user still typing
-        elem('clock').innerHTML = '??:??:??';
       }
     }
 
-    function mode_switch() {
-      // change mode
-      // update prompt and mode-switch
-      // set default input for this mode
-      if(MODE == "LONG") {
-        MODE = "ZIP";
-        elem('prompt').innerHTML = '';
-        elem('mode-switch').innerHTML = 'Longitude';
-        elem('input').value = 92093;
-      } else if(MODE == "ZIP") {
-        MODE = "LONG";
+    function switch_mode(m) {
+      MODE = m;
+      if(m == "LONG") {
         elem('prompt').innerHTML = '&deg;';
-        elem('mode-switch').innerHTML = 'ZIP';
-        elem('input').value = -130;
+        setLong();
+      } else if(m == "ZIP") {
+        elem('prompt').innerHTML = '';
+        elem('input').value = 92093;
       } else {
         error('BAD MODE');
       }
@@ -114,8 +114,7 @@
       location.reload();
     }
 
-    mode_switch(); // long -> zip and show
-    mode_switch(); // zip -> long and show
+    switch_mode("LONG");
     setInterval(show, 1000); // update every second
   </script>
 </body>
