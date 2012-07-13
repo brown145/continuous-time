@@ -85,12 +85,13 @@
         error('BAD MODE');
       }
 
-      t = con_time(l);
-      if(t.hour) { // probably a valid time
+      if(isNaN(l)) {
+        // bogus longitude
+        elem('clock').innerHTML = '??:??:??';
+      } else {
+        t = con_time(l);
         elem('clock').innerHTML =
           sprintf('%02d:%02d:%02d', t.hour, t.min, t.sec);
-      } else { // error or user still typing
-        elem('clock').innerHTML = '??:??:??';
       }
     }
 
