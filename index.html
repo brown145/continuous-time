@@ -18,9 +18,11 @@
       font-weight: bold;
       text-align: right;
     }
-    #mode-switch {
+    .mode-switch {
       font-size: 16pt;
-      padding: 8px;
+      padding: 5px;
+      margin: 10px;
+      width: 150px;
     }
   </style>
 </head>
@@ -31,7 +33,10 @@
     is <span id='clock'></span>
   </h1>
   <br />
-  <button type='button' id='mode-switch' onclick='mode_switch()'></button>
+  <button type='button' class='mode-switch'
+    onclick='switch_mode("LONG")'>Longitude</button>
+  <button type='button' class='mode-switch'
+    onclick='switch_mode("ZIP")'>ZIP</button>
   <script>
     "use strict";
 
@@ -42,7 +47,7 @@
       return document.getElementById(id);
     }
 
-    function conTime(longitude) {
+    function con_time(longitude) {
       var utc = new Date().getTime();
       var off = 12 * hour_ms * longitude / 180;
       var ctm = new Date(utc + off);
@@ -64,7 +69,7 @@
         error('BAD MODE');
       }
 
-      t = conTime(l);
+      t = con_time(l);
       if(t.hour) { // probably a valid time
         elem('clock').innerHTML =
           sprintf('%02d:%02d:%02d', t.hour, t.min, t.sec);
@@ -73,20 +78,14 @@
       }
     }
 
-    function mode_switch() {
-      // change mode
-      // update prompt and mode-switch
-      // set default input for this mode
-      if(MODE == "LONG") {
-        MODE = "ZIP";
-        elem('prompt').innerHTML = '';
-        elem('mode-switch').innerHTML = 'Longitude';
-        elem('input').value = 92093;
-      } else if(MODE == "ZIP") {
-        MODE = "LONG";
+    function switch_mode(m) {
+      MODE = m;
+      if(m == "LONG") {
         elem('prompt').innerHTML = '&deg;';
-        elem('mode-switch').innerHTML = 'ZIP';
         elem('input').value = -117;
+      } else if(m == "ZIP") {
+        elem('prompt').innerHTML = '';
+        elem('input').value = 92093;
       } else {
         error('BAD MODE');
       }
@@ -98,8 +97,7 @@
       location.reload();
     }
 
-    mode_switch(); // long -> zip and show
-    mode_switch(); // zip -> long and show
+    switch_mode("LONG");
     setInterval(show, 1000); // update every second
   </script>
 </body>
